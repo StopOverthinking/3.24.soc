@@ -1,0 +1,402 @@
+:root {
+  --bg-top: #f5efe3;
+  --bg-bottom: #d9e9ea;
+  --ink: #17303a;
+  --muted: #56707a;
+  --panel: rgba(255, 252, 247, 0.92);
+  --line: rgba(23, 48, 58, 0.12);
+  --accent: #d9603b;
+  --accent-dark: #a83f20;
+  --leaf: #4d7965;
+  --sun: #efbf4f;
+  --wall: #285063;
+  --path: #f7f1e4;
+  --quiz: #f0b869;
+  --goal: #8cc07a;
+  --player: #d94e41;
+  --shadow: 0 18px 50px rgba(27, 45, 56, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 30%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  height: 100vh;
+  overflow: hidden;
+}
+
+.page-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  height: 100vh;
+  padding: 16px 20px;
+}
+
+.game-panel,
+.modal-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.ghost-button,
+.primary-button,
+.move-button,
+.option-button {
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.ghost-button,
+.primary-button {
+  padding: 14px 16px;
+  font-weight: 700;
+}
+
+.ghost-button {
+  background: rgba(23, 48, 58, 0.08);
+  color: var(--ink);
+}
+
+.primary-button {
+  background: var(--accent);
+  color: #fff;
+}
+
+.layout {
+  display: block;
+  height: 100%;
+}
+
+.game-panel {
+  height: 100%;
+  padding: 18px 20px 14px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+}
+
+.board-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.board-tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.board-header p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.legend-player {
+  background: var(--player);
+}
+
+.legend-quiz {
+  background: var(--quiz);
+}
+
+.legend-goal {
+  background: var(--goal);
+}
+
+.compact-button {
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
+.maze {
+  display: grid;
+  grid-template-columns: repeat(var(--maze-cols, 8), var(--tile-size, 56px));
+  grid-auto-rows: var(--tile-size, 56px);
+  gap: 4px;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(40, 80, 99, 0.08), rgba(255, 255, 255, 0.55));
+  border-radius: 22px;
+  align-self: center;
+  justify-self: center;
+  width: max-content;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.cell {
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+}
+
+.cell.wall {
+  background: var(--wall);
+}
+
+.cell.path {
+  background: var(--path);
+}
+
+.cell.quiz {
+  background: var(--quiz);
+}
+
+.cell.goal {
+  background: var(--goal);
+}
+
+.cell.player::after {
+  content: "";
+  width: 58%;
+  height: 58%;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #fff7d9 0 20%, #ff856d 21% 58%, #c6342e 59% 100%);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.9),
+    0 0 0 9px rgba(217, 78, 65, 0.35),
+    0 8px 18px rgba(81, 18, 16, 0.32);
+}
+
+.cell.player::before {
+  content: "";
+  position: absolute;
+  inset: 10%;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+.cell.fog {
+  background: linear-gradient(180deg, rgba(7, 22, 29, 0.98), rgba(5, 14, 19, 0.98));
+}
+
+.cell.fog::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04), transparent 58%);
+}
+
+.cell.explored {
+  filter: saturate(0.88) brightness(0.92);
+}
+
+.controls {
+  margin-top: 12px;
+  display: grid;
+  justify-content: center;
+  gap: 10px;
+}
+
+.side-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.move-button {
+  min-width: 72px;
+  min-height: 56px;
+  background: rgba(77, 121, 101, 0.12);
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.tip,
+.summary-text {
+  color: var(--muted);
+}
+
+.tip {
+  margin: 8px 0 0;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(11, 25, 32, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+.answer-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 30;
+}
+
+.answer-flash.is-correct {
+  background: rgba(105, 196, 110, 0.34);
+  animation: answer-flash 0.42s ease-out;
+}
+
+.answer-flash.is-wrong {
+  background: rgba(225, 92, 92, 0.34);
+  animation: answer-flash 0.5s ease-out;
+}
+
+@keyframes answer-flash {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.modal-card {
+  width: min(100%, 680px);
+  padding: 28px;
+}
+
+.modal-tag {
+  margin-bottom: 10px;
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+.options {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0 14px;
+}
+
+.option-button {
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  background: rgba(23, 48, 58, 0.08);
+  color: var(--ink);
+}
+
+.option-button.correct {
+  background: rgba(77, 121, 101, 0.18);
+}
+
+.option-button.wrong {
+  background: rgba(217, 78, 65, 0.18);
+}
+
+.option-button:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+.feedback {
+  min-height: 0;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.ending-card {
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.ghost-button:hover,
+.primary-button:hover,
+.move-button:hover,
+.option-button:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 920px) {
+  body {
+    height: auto;
+    overflow: auto;
+  }
+
+  .page-shell {
+    height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    padding-inline: 14px;
+  }
+
+  .game-panel,
+  .modal-card {
+    border-radius: 22px;
+  }
+
+  .maze {
+    gap: 3px;
+    padding: 8px;
+  }
+
+  .board-header {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .board-tools {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .move-button {
+    min-width: 62px;
+  }
+}
