@@ -283,6 +283,34 @@ function getStage() {
   return stages[currentStageIndex];
 }
 
+function getStageQuestionKeys(stage) {
+  return Object.keys(stage.questions).map((key) => `${stage.id}:${key}`);
+}
+
+function getSolvedCountForStage(stage) {
+  return getStageQuestionKeys(stage).filter((key) => solvedQuestions.has(key)).length;
+}
+
+function validateStageQuestionMap(stage) {
+  const layoutQuestionKeys = [];
+  stage.layout.forEach((row, r) => {
+    [...row].forEach((cell, c) => {
+      if (cell === "Q") {
+        layoutQuestionKeys.push(`${r},${c}`);
+      }
+    });
+  });
+
+  const mappedQuestionKeys = Object.keys(stage.questions);
+  const isValid =
+    layoutQuestionKeys.length === mappedQuestionKeys.length &&
+    layoutQuestionKeys.every((key) => mappedQuestionKeys.includes(key));
+
+  if (!isValid) {
+    throw new Error(`Question map mismatch in stage ${stage.id}`);
+  }
+}
+
 function getStartPosition(stage) {
   const startRow = stage.layout.findIndex((line) => line.includes("S"));
   const startCol = stage.layout[startRow].indexOf("S");
@@ -316,6 +344,7 @@ function revealAroundPlayer(stage) {
 
 function setupStage(resetReveal = false) {
   const stage = getStage();
+  validateStageQuestionMap(stage);
   stageTitleEl.textContent = stage.title;
   stageGoalEl.textContent = stage.goalText;
 
@@ -417,6 +446,11 @@ function tryMove(direction) {
     return;
   }
 
+  if (rowString[nextCol] === "G" && getSolvedCountForStage(stage) < getStageQuestionKeys(stage).length) {
+    triggerAnswerFlash(false);
+    return;
+  }
+
   player = { row: nextRow, col: nextCol };
   revealAroundPlayer(stage);
   renderMaze();
@@ -429,7 +463,12 @@ function handleCell(cellType, row, col) {
   const questionId = `${stage.id}:${key}`;
 
   if (cellType === "Q" && !solvedQuestions.has(questionId)) {
-    openQuiz(stage.questions[key], questionId, stage.name);
+    const question = stage.questions[key];
+    if (!question) {
+      triggerAnswerFlash(false);
+      return;
+    }
+    openQuiz(question, questionId, stage.name);
   }
 
   if (cellType === "G") {
