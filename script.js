@@ -576,6 +576,38 @@ function resetGame() {
   setupStage(true);
 }
 
+function preventMobileZoom() {
+  let lastTouchEnd = 0;
+
+  ["gesturestart", "gesturechange", "gestureend"].forEach((eventName) => {
+    document.addEventListener(eventName, (event) => {
+      event.preventDefault();
+    });
+  });
+
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (event.scale && event.scale !== 1) {
+        event.preventDefault();
+      }
+    },
+    { passive: false }
+  );
+
+  document.addEventListener(
+    "touchend",
+    (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    },
+    { passive: false }
+  );
+}
+
 document.querySelectorAll(".move-button").forEach((button) => {
   button.addEventListener("click", () => tryMove(button.dataset.direction));
 });
@@ -607,4 +639,5 @@ document.getElementById("reset-button").addEventListener("click", resetGame);
 document.getElementById("ending-reset").addEventListener("click", resetGame);
 window.addEventListener("resize", updateMazeSizing);
 
+preventMobileZoom();
 setupStage(true);
